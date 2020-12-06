@@ -40,6 +40,8 @@ typedef struct {
 
 int fifo(int8_t** page_table, int num_pages, int prev_page,
          int fifo_frm, int num_frames, int clock) {
+    //Algoritmo FIFO...
+     
     return -1;
 }
 
@@ -62,7 +64,9 @@ int random_page(int8_t** page_table, int num_pages, int prev_page,
                 int fifo_frm, int num_frames, int clock) {
     int page = rand() % num_pages;
     while (page_table[page][PT_MAPPED] == 0) // Encontra página mapeada
+        //printf("%d\n", page_table[page][PT_MAPPED]);
         page = rand() % num_pages;
+    //printf("%d\n",page);
     return page;
 }
 
@@ -79,7 +83,7 @@ int find_next_frame(int *physical_memory, int *num_free_frames,
     do {
         *prev_free = (*prev_free + 1) % num_frames;
     } while (physical_memory[*prev_free] == 1);
-
+    //printf("%d\n", prev_free);
     return *prev_free;
 }
 
@@ -91,7 +95,7 @@ int simulate(int8_t **page_table, int num_pages, int *prev_page, int *fifo_frm,
         printf("Invalid access \n");
         exit(1);
     }
-
+    //printf("%d\n", page_table[virt_addr][PT_MAPPED]);
     if (page_table[virt_addr][PT_MAPPED] == 1) {
         page_table[virt_addr][PT_REFERENCE_BIT] = 1;
         return 0; // Not Page Fault!
@@ -113,6 +117,7 @@ int simulate(int8_t **page_table, int num_pages, int *prev_page, int *fifo_frm,
         assert(page_table[to_free][PT_MAPPED] != 0);
 
         next_frame_addr = page_table[to_free][PT_FRAMEID];
+        //printf("%d\n", next_frame_addr);
         *fifo_frm = (*fifo_frm + 1) % num_frames;
         // Libera pagina antiga
         page_table[to_free][PT_FRAMEID] = -1;
@@ -132,6 +137,7 @@ int simulate(int8_t **page_table, int num_pages, int *prev_page, int *fifo_frm,
     }
     page_table_data[PT_REFERENCE_BIT] = 1;
     page_table_data[PT_REFERENCE_MODE] = (int8_t) access_type;
+    //printf("%d\n", virt_addr);
     *prev_page = virt_addr;
 
     if (clock == 1) {
