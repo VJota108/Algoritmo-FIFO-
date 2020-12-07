@@ -5,11 +5,11 @@
 #include <time.h>
 #include <stdint.h>
 
-// Campos da tabela de páginas
+// Campos da tabela de pÃ¡ginas
 #define PT_FIELDS 6           // 4 campos na tabela
-#define PT_FRAMEID 0          // Endereço da memória física
-#define PT_MAPPED 1           // Endereço presente na tabela
-#define PT_DIRTY 2            // Página dirty
+#define PT_FRAMEID 0          // EndereÃ§o da memÃ³ria fÃ­sica
+#define PT_MAPPED 1           // EndereÃ§o presente na tabela
+#define PT_DIRTY 2            // PÃ¡gina dirty
 #define PT_REFERENCE_BIT 3    // Bit de referencia
 #define PT_REFERENCE_MODE 4   // Tipo de acesso, converter para char
 #define PT_AGING_COUNTER 5    // Contador para aging
@@ -18,7 +18,7 @@
 #define READ 'r'
 #define WRITE 'w'
 
-// Define a função que simula o algoritmo da política de subst.
+// Define a funÃ§Ã£o que simula o algoritmo da polÃ­tica de subst.
 typedef int (*eviction_f)(int8_t**, int, int, int, int, int);
 
 typedef struct {
@@ -26,28 +26,28 @@ typedef struct {
     void *function;
 } paging_policy_t;
 
-// Codifique as reposições a partir daqui!
-// Cada método abaixo retorna uma página para ser trocada. Note também
+// Codifique as reposiÃ§Ãµes a partir daqui!
+// Cada mÃ©todo abaixo retorna uma pÃ¡gina para ser trocada. Note tambÃ©m
 // que cada algoritmo recebe:
-// - A tabela de páginas
+// - A tabela de pÃ¡ginas
 // - O tamanho da mesma
-// - A última página acessada
+// - A Ãºltima pÃ¡gina acessada
 // - A primeira modura acessada (para fifo)
-// - O número de molduras
-// - Se a última instrução gerou um ciclo de clock
+// - O nÃºmero de molduras
+// - Se a Ãºltima instruÃ§Ã£o gerou um ciclo de clock
 //
-// Adicione mais parâmetros caso ache necessário
+// Adicione mais parÃ¢metros caso ache necessÃ¡rio
 
 int fifo(int8_t** page_table, int num_pages, int prev_page, 
 	 int fifo_frm, int num_frames, int clock) {
 	     
-         int count; //variável contadora para representar o endereço a ser substituído
-         //laço para encontrar o frame antigo a ser substituído e para quando ele é encontrado
-	 count=0;
+         int count; //variÃ¡vel contadora para representar o endereÃ§o a ser substituÃ­do
+         //laÃ§o para encontrar o frame antigo a ser substituÃ­do e para quando ele Ã© encontrado
+         count=0;
          while(page_table[count][PT_FRAMEID] != fifo_frm){ //verifica enquanto o frame ID for diferente do frame mais antigo
          	count++; 
          }
-    return count;
+    return count; // Após o laço tem-se a posição da página mais antiga e com isso retorna-se essa posição para que seja feita a eliminação
 }
 
 int second_chance(int8_t** page_table, int num_pages, int prev_page,
@@ -65,10 +65,10 @@ int aging(int8_t** page_table, int num_pages, int prev_page,
     return -1;
 }
 
-int random_page(int8_t** page_table, int num_pages, int prev_page,
+int random_page(int8_t** page_table, int num_pages, int prev_page,                   //código professor
                 int fifo_frm, int num_frames, int clock) {
     int page = rand() % num_pages;
-    while (page_table[page][PT_MAPPED] == 0) // Encontra página mapeada
+    while (page_table[page][PT_MAPPED] == 0) // Encontra pÃ¡gina mapeada
         //printf("%d\n", page_table[page][PT_MAPPED]);
         page = rand() % num_pages;
     //printf("%d\n",page);
@@ -83,8 +83,8 @@ int find_next_frame(int *physical_memory, int *num_free_frames,
         return -1;
     }
 
-    // Procura por um frame livre de forma circula na memória.
-    // Não é muito eficiente, mas fazer um hash em C seria mais custoso.
+    // Procura por um frame livre de forma circula na memÃ³ria.
+    // NÃ£o Ã© muito eficiente, mas fazer um hash em C seria mais custoso.
     do {
         *prev_free = (*prev_free + 1) % num_frames;
     } while (physical_memory[*prev_free] == 1);
@@ -107,21 +107,21 @@ int simulate(int8_t **page_table, int num_pages, int *prev_page, int *fifo_frm,
     }
 
     int next_frame_addr;
-    if ((*num_free_frames) > 0) { // Ainda temos memória física livre!
+    if ((*num_free_frames) > 0) { // Ainda temos memÃ³ria fÃ­sica livre!
         next_frame_addr = find_next_frame(physical_memory, num_free_frames,
                                           num_frames, prev_free);
         if (*fifo_frm == -1)
             *fifo_frm = next_frame_addr;
         *num_free_frames = *num_free_frames - 1;
-    } else { // Precisamos liberar a memória!
+    } else { // Precisamos liberar a memÃ³ria!
         assert(*num_free_frames == 0);
         int to_free = evict(page_table, num_pages, *prev_page, *fifo_frm,
                             num_frames, clock);
         assert(to_free >= 0);
         assert(to_free < num_pages);
-        assert(page_table[to_free][PT_MAPPED] != 0);
+        assert(page_table[to_free][PT_MAPPED] != 0);              //verificar valor
 
-        next_frame_addr = page_table[to_free][PT_FRAMEID];
+        next_frame_addr = page_table[to_free][PT_FRAMEID];         //verificar valor
         //printf("%d\n", next_frame_addr);
         *fifo_frm = (*fifo_frm + 1) % num_frames;
         // Libera pagina antiga
@@ -133,17 +133,17 @@ int simulate(int8_t **page_table, int num_pages, int *prev_page, int *fifo_frm,
         page_table[to_free][PT_AGING_COUNTER] = 0;
     }
 
-    // Coloca endereço físico na tabela de páginas!
+    // Coloca endereÃ§o fÃ­sico na tabela de pÃ¡ginas!
     int8_t *page_table_data = page_table[virt_addr];
     page_table_data[PT_FRAMEID] = next_frame_addr;
     page_table_data[PT_MAPPED] = 1;
     if (access_type == WRITE) {
         page_table_data[PT_DIRTY] = 1;
     }
-    page_table_data[PT_REFERENCE_BIT] = 1;
+    page_table_data[PT_REFERENCE_BIT] = 1;                     
     page_table_data[PT_REFERENCE_MODE] = (int8_t) access_type;
     //printf("%d\n", virt_addr);
-    *prev_page = virt_addr;
+    *prev_page = virt_addr;                      //verificar valor
 
     if (clock == 1) {
         for (int i = 0; i < num_pages; i++)
@@ -165,7 +165,7 @@ void run(int8_t **page_table, int num_pages, int *prev_page, int *fifo_frm,
         getchar();
         scanf("%c", &access_type);
         clock = ((i+1) % clock_freq) == 0;
-        faults += simulate(page_table, num_pages, prev_page, fifo_frm,
+        faults += simulate(page_table, num_pages, prev_page, fifo_frm,   
                            physical_memory, num_free_frames, num_frames, prev_free,
                            virt_addr, access_type, evict, clock);
         i++;
@@ -196,10 +196,10 @@ int main(int argc, char **argv) {
     char *algorithm = argv[1];
     int clock_freq = parse(argv[2]);
     int num_pages;
-    int num_frames;
+    int num_frames;  
     read_header(&num_pages, &num_frames);
 
-    // Aponta para cada função que realmente roda a política de parse
+    // Aponta para cada funÃ§Ã£o que realmente roda a polÃ­tica de parse
     paging_policy_t policies[] = {
             {"fifo", *fifo},
             {"second_chance", *second_chance},
@@ -215,27 +215,28 @@ int main(int argc, char **argv) {
             evict = policies[i].function;
             break;
         }
-    }
+    } // pegar algoritmo digitado
 
     if (evict == NULL) {
         printf("Please pass a valid paging algorithm.\n");
         exit(1);
     }
 
-    // Aloca tabela de páginas
+    // Aloca tabela de pÃ¡ginas
     int8_t **page_table = (int8_t **) malloc(num_pages * sizeof(int8_t*));
     for (int i = 0; i < num_pages; i++) {
         page_table[i] = (int8_t *) malloc(PT_FIELDS * sizeof(int8_t));
         page_table[i][PT_FRAMEID] = -1;
         page_table[i][PT_MAPPED] = 0;
         page_table[i][PT_DIRTY] = 0;
-        page_table[i][PT_REFERENCE_BIT] = 0;
+        page_table[i][PT_REFERENCE_BIT] = 0;           
         page_table[i][PT_REFERENCE_MODE] = 0;
         page_table[i][PT_AGING_COUNTER] = 0;
-    }
+    }      // valores da matriz cada campo é um valor
+    //Não usar todos
 
-    // Memória Real é apenas uma tabela de bits (na verdade uso ints) indicando
-    // quais frames/molduras estão livre. 0 == livre!
+    // MemÃ³ria Real Ã© apenas uma tabela de bits (na verdade uso ints) indicando
+    // quais frames/molduras estÃ£o livre. 0 == livre!
     int *physical_memory = (int *) malloc(num_frames * sizeof(int));
     for (int i = 0; i < num_frames; i++) {
         physical_memory[i] = 0;
@@ -243,7 +244,7 @@ int main(int argc, char **argv) {
     int num_free_frames = num_frames;
     int prev_free = -1;
     int prev_page = -1;
-    int fifo_frm = -1;
+    int fifo_frm = -1;    // responsável por ter o valor mais antigo da memória
 
     // Roda o simulador
     srand(time(NULL));
