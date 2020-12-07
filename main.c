@@ -38,11 +38,15 @@ typedef struct {
 //
 // Adicione mais parâmetros caso ache necessário
 
-int fifo(int8_t** page_table, int num_pages, int prev_page,
-         int fifo_frm, int num_frames, int clock) {
-    //Algoritmo FIFO...
-     
-    return -1;
+int fifo(int8_t** page_table, int num_pages, int prev_page, 
+	 int fifo_frm, int num_frames, int clock) {
+	     count=0;
+         int count; //variável contadora para representar o endereço a ser substituído
+         //laço para encontrar o frame antigo a ser substituído e para quando ele é encontrado
+         while(page_table[count][PT_FRAMEID] != fifo_frm){ //verifica enquanto o frame ID for diferente do frame mais antigo
+         	count++; 
+         }
+    return count;
 }
 
 int second_chance(int8_t** page_table, int num_pages, int prev_page,
