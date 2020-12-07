@@ -7,3 +7,6 @@ Como utilizar:
 	Em seu terminal digite os comandos:
 		gcc -Wall main.c -o main   (Para compilar)
 		./main fifo 10 < anomaly.dat (execução do código)
+		
+Perfil Github:
+	https://github.com/VJota108/Algoritmo-FIFO-
